@@ -111,14 +111,14 @@ export default function AdminPage() {
   }
 
   if (authed === null) {
-    return <p className="p-8 text-sm text-muted">Loading…</p>
+    return <p className="p-8 text-sm text-ink-soft">Loading…</p>
   }
 
   if (!authed) {
     return (
       <div className="mx-auto max-w-sm px-4 py-16">
         <h1 className="mb-1 text-xl font-semibold">Admin</h1>
-        <p className="mb-6 text-sm text-muted">Enter the admin password to continue.</p>
+        <p className="mb-6 text-sm text-ink-soft">Enter the admin password to continue.</p>
 
         <form onSubmit={login} className="space-y-3">
           <input
@@ -127,18 +127,18 @@ export default function AdminPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             autoFocus
-            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-brand"
           />
           {loginError && <p className="text-sm text-red-600">{loginError}</p>}
           <button
             type="submit"
-            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white"
+            className="w-full rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white"
           >
             Sign in
           </button>
         </form>
 
-        <Link href="/" className="mt-6 block text-center text-sm text-muted hover:text-foreground">
+        <Link href="/" className="mt-6 block text-center text-sm text-ink-soft hover:text-ink">
           ← Back to site
         </Link>
       </div>
@@ -149,10 +149,10 @@ export default function AdminPage() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center gap-4">
         <h1 className="text-2xl font-semibold">Admin</h1>
-        <Link href="/" className="text-sm text-muted hover:text-foreground">
+        <Link href="/" className="text-sm text-ink-soft hover:text-ink">
           View site
         </Link>
-        <button onClick={logout} className="ml-auto text-sm text-muted hover:text-foreground">
+        <button onClick={logout} className="ml-auto text-sm text-ink-soft hover:text-ink">
           Sign out
         </button>
       </div>
@@ -173,7 +173,7 @@ export default function AdminPage() {
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-line bg-surface p-4">
             <div className="text-2xl font-semibold">{s.value}</div>
-            <div className="text-xs text-muted">{s.label}</div>
+            <div className="text-xs text-ink-soft">{s.label}</div>
           </div>
         ))}
       </section>
@@ -187,14 +187,14 @@ export default function AdminPage() {
             value={draft.title}
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             placeholder="Title"
-            className="w-full rounded-lg border border-line bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+            className="w-full rounded-lg border border-line bg-background px-3 py-2 text-sm outline-none focus:border-brand"
           />
           <textarea
             value={draft.message}
             onChange={(e) => setDraft({ ...draft, message: e.target.value })}
             placeholder="Message shown to the public"
             rows={3}
-            className="w-full rounded-lg border border-line bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+            className="w-full rounded-lg border border-line bg-background px-3 py-2 text-sm outline-none focus:border-brand"
           />
           <div className="flex flex-wrap gap-3">
             <select
@@ -224,7 +224,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
             >
               {editing ? 'Save changes' : 'Create alert'}
             </button>
@@ -254,7 +254,7 @@ export default function AdminPage() {
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium">{a.title}</span>
-                <span className="text-xs text-muted">
+                <span className="text-xs text-ink-soft">
                   {a.severity} · {a.region} {a.is_active ? '' : '· inactive'}
                 </span>
                 <span className="ml-auto flex gap-3 text-xs">
@@ -269,7 +269,7 @@ export default function AdminPage() {
                       })
                       window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
-                    className="text-accent hover:underline"
+                    className="text-brand hover:underline"
                   >
                     Edit
                   </button>
@@ -281,10 +281,10 @@ export default function AdminPage() {
                   </button>
                 </span>
               </div>
-              <p className="mt-1 text-muted">{a.message}</p>
+              <p className="mt-1 text-ink-soft">{a.message}</p>
             </li>
           ))}
-          {alerts.length === 0 && <li className="text-sm text-muted">No alerts yet.</li>}
+          {alerts.length === 0 && <li className="text-sm text-ink-soft">No alerts yet.</li>}
         </ul>
       </section>
 
@@ -293,7 +293,7 @@ export default function AdminPage() {
         <h2 className="mb-3 text-lg font-medium">Recent questions</h2>
         <div className="overflow-x-auto rounded-xl border border-line bg-surface">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-line text-xs uppercase text-muted">
+            <thead className="border-b border-line text-xs uppercase text-ink-soft">
               <tr>
                 <th className="p-3">When</th>
                 <th className="p-3">Type</th>
@@ -311,7 +311,7 @@ export default function AdminPage() {
                       : ''
                   }`}
                 >
-                  <td className="whitespace-nowrap p-3 text-xs text-muted">
+                  <td className="whitespace-nowrap p-3 text-xs text-ink-soft">
                     {new Date(q.created_at).toLocaleString()}
                   </td>
                   <td className="p-3 text-xs">{q.kind}</td>
@@ -328,7 +328,7 @@ export default function AdminPage() {
               ))}
               {queries.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-4 text-sm text-muted">
+                  <td colSpan={4} className="p-4 text-sm text-ink-soft">
                     Nothing yet.
                   </td>
                 </tr>

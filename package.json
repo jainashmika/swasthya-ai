@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "check:ai": "node scripts/check-ai.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

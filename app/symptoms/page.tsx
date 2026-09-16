@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { PhoneIcon, SymptomsIcon } from '@/components/Icons'
 import { useLang } from '@/components/LangProvider'
 import { DISCLAIMER } from '@/lib/ai'
 import { AGE_BANDS, DURATIONS, SYMPTOMS, t } from '@/lib/i18n'
@@ -49,31 +50,51 @@ export default function SymptomsPage() {
     setResult(null)
   }
 
+  const canSubmit = selected.length > 0 || details.trim().length > 0
+
+  const fieldClass =
+    'w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[0.95rem] outline-none transition focus:border-brand'
+
+  // ── Result ────────────────────────────────────────────────────────────────
   if (result) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <h1 className="mb-4 text-2xl font-semibold">{t(lang, 'symptomsTitle')}</h1>
+      <div className="mx-auto max-w-2xl px-5 py-8">
+        <h1 className="mb-5 text-2xl font-bold tracking-tight sm:text-3xl">
+          {t(lang, 'symptomsTitle')}
+        </h1>
 
-        <div
-          className={
-            result.emergency
-              ? 'rounded-xl border-l-4 border-red-500 bg-red-50 p-4 text-red-900 dark:bg-red-950/40 dark:text-red-200'
-              : 'rounded-xl border border-line bg-surface p-4'
-          }
-        >
-          {result.emergency && (
-            <strong className="mb-2 block uppercase tracking-wide">
+        {result.emergency ? (
+          <div role="alert" className="rise rounded-2xl border-2 border-danger-edge bg-danger-soft p-5">
+            <p className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-danger">
+              <PhoneIcon className="h-4 w-4" />
               {t(lang, 'emergency')}
-            </strong>
-          )}
-          <div className="answer text-sm">{result.content}</div>
-        </div>
-
-        {!result.emergency && <p className="mt-3 text-xs text-muted">{DISCLAIMER[lang]}</p>}
+            </p>
+            <p className="answer font-medium">{result.content}</p>
+            <p className="mt-2 text-sm text-ink-soft">{t(lang, 'emergencyHelp')}</p>
+            <a
+              href="tel:108"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-danger px-5 py-3 font-bold text-white transition hover:brightness-110"
+            >
+              <PhoneIcon className="h-5 w-5" />
+              {t(lang, 'callNow')}
+            </a>
+          </div>
+        ) : (
+          <div className="rise rounded-2xl border border-line bg-surface p-5 shadow-(--shadow)">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-brand">
+              <SymptomsIcon className="h-4 w-4" />
+              {t(lang, 'resultTitle')}
+            </h2>
+            <div className="answer">{result.content}</div>
+            <p className="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-ink-faint">
+              {DISCLAIMER[lang]}
+            </p>
+          </div>
+        )}
 
         <button
           onClick={reset}
-          className="mt-5 rounded-lg border border-line px-4 py-2 text-sm hover:bg-accent-soft"
+          className="mt-6 rounded-xl border border-line bg-surface px-5 py-2.5 font-medium transition hover:border-brand-edge hover:bg-brand-soft hover:text-brand"
         >
           {t(lang, 'startOver')}
         </button>
@@ -81,14 +102,17 @@ export default function SymptomsPage() {
     )
   }
 
+  // ── Form ──────────────────────────────────────────────────────────────────
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-1 text-2xl font-semibold">{t(lang, 'symptomsTitle')}</h1>
-      <p className="mb-6 text-sm text-muted">{t(lang, 'symptomsIntro')}</p>
+    <div className="mx-auto max-w-2xl px-5 py-8">
+      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        {t(lang, 'symptomsTitle')}
+      </h1>
+      <p className="mb-7 mt-1.5 text-ink-soft">{t(lang, 'symptomsIntro')}</p>
 
-      <form onSubmit={submit} className="space-y-6">
+      <form onSubmit={submit} className="space-y-7">
         <fieldset>
-          <legend className="mb-2 font-medium">{t(lang, 'selectSymptoms')}</legend>
+          <legend className="mb-3 font-semibold">{t(lang, 'selectSymptoms')}</legend>
           <div className="flex flex-wrap gap-2">
             {SYMPTOMS.map((s) => {
               const on = selected.includes(s.value)
@@ -98,10 +122,10 @@ export default function SymptomsPage() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => toggle(s.value)}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  className={`rounded-full border-2 px-4 py-2 text-[0.95rem] font-medium transition ${
                     on
-                      ? 'border-accent bg-accent text-white'
-                      : 'border-line bg-surface hover:border-accent'
+                      ? 'border-brand bg-brand text-brand-ink'
+                      : 'border-line bg-surface text-ink-soft hover:border-brand-edge hover:text-ink'
                   }`}
                 >
                   {s.label[lang]}
@@ -112,24 +136,24 @@ export default function SymptomsPage() {
         </fieldset>
 
         <label className="block">
-          <span className="mb-2 block font-medium">{t(lang, 'otherDetails')}</span>
+          <span className="mb-2.5 block font-semibold">{t(lang, 'otherDetails')}</span>
           <textarea
             value={details}
             onChange={(e) => setDetails(e.target.value)}
             rows={3}
             maxLength={500}
             placeholder={t(lang, 'otherPlaceholder')}
-            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+            className={`${fieldClass} resize-none placeholder:text-ink-faint`}
           />
         </label>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-2 block font-medium">{t(lang, 'duration')}</span>
+            <span className="mb-2.5 block font-semibold">{t(lang, 'duration')}</span>
             <select
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
+              className={fieldClass}
             >
               {DURATIONS.map((d) => (
                 <option key={d.value} value={d.value}>
@@ -140,11 +164,11 @@ export default function SymptomsPage() {
           </label>
 
           <label className="block">
-            <span className="mb-2 block font-medium">{t(lang, 'ageGroup')}</span>
+            <span className="mb-2.5 block font-semibold">{t(lang, 'ageGroup')}</span>
             <select
               value={ageBand}
               onChange={(e) => setAgeBand(e.target.value)}
-              className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm"
+              className={fieldClass}
             >
               {AGE_BANDS.map((a) => (
                 <option key={a.value} value={a.value}>
@@ -157,10 +181,24 @@ export default function SymptomsPage() {
 
         <button
           type="submit"
-          disabled={busy || (selected.length === 0 && !details.trim())}
-          className="rounded-lg bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-40"
+          disabled={busy || !canSubmit}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3.5 font-semibold text-brand-ink transition hover:bg-brand-hover disabled:opacity-35 sm:w-auto"
         >
-          {busy ? t(lang, 'checking') : t(lang, 'checkNow')}
+          {busy ? (
+            <>
+              <span className="flex gap-1.5">
+                <i className="dot" />
+                <i className="dot" />
+                <i className="dot" />
+              </span>
+              {t(lang, 'checking')}
+            </>
+          ) : (
+            <>
+              <SymptomsIcon className="h-5 w-5" />
+              {t(lang, 'checkNow')}
+            </>
+          )}
         </button>
       </form>
     </div>

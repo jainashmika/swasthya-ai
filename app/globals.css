@@ -1,45 +1,213 @@
 @import "tailwindcss";
 
+/* ───────────────────────────────────────────────────────────────────────────
+   SwasthyaAI design tokens
+
+   The visual language is closer to public health signage than to a SaaS
+   dashboard: strong colour blocks, large type, high contrast, big tap
+   targets. The audience may be on a cheap phone, in sunlight, reading a
+   script other than Latin.
+   ─────────────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #f6f8f7;
-  --surface: #ffffff;
-  --foreground: #14201c;
-  --muted: #5c6b66;
-  --border: #dde5e2;
-  --accent: #0f766e;
-  --accent-soft: #e6f2f0;
+  /* Surfaces — neutrals carry a slight green bias so they sit with the brand */
+  --paper:        #f4f7f5;
+  --surface:      #ffffff;
+  --surface-2:    #eef3f0;
+
+  /* Text */
+  --ink:          #0c1a15;
+  --ink-soft:     #4a5c55;
+  --ink-faint:    #77887f;
+
+  /* Lines */
+  --line:         #d8e2dd;
+  --line-strong:  #b9c8c1;
+
+  /* Brand — a deep pine green, not the default teal */
+  --brand:        #0b6b53;
+  --brand-hover:  #085442;
+  --brand-ink:    #ffffff;
+  --brand-soft:   #e3f0eb;
+  --brand-edge:   #9dc9ba;
+
+  /* The hero is a solid colour block. It needs its own pair: reusing --brand
+     in dark mode turns the whole band into a glaring mint slab. */
+  --hero-bg:      #0b6b53;
+  --hero-ink:     #ffffff;
+  --hero-cta:     #ffffff;
+  --hero-cta-ink: #0b6b53;
+  --hero-line:    rgba(255, 255, 255, .28);
+  --hero-chip:    rgba(255, 255, 255, .15);
+
+  /* Semantic */
+  --danger:       #b3261e;
+  --danger-soft:  #fdeceb;
+  --danger-edge:  #f0b4b0;
+  --warn:         #96590a;
+  --warn-soft:    #fdf3e3;
+  --warn-edge:    #e8c894;
+  --info:         #1c5a8a;
+  --info-soft:    #e8f1f8;
+
+  /* Composed in layout.tsx: Latin first, then each Indic script. The browser
+     falls through the stack per-glyph, so every script gets a real face. */
+  --font-app: var(--f-latin), var(--f-deva), var(--f-knda), var(--f-telu);
+
+  --radius:       14px;
+  --shadow:       0 1px 2px rgba(12, 26, 21, .05), 0 4px 16px rgba(12, 26, 21, .05);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d1412;
-    --surface: #16201d;
-    --foreground: #e8efec;
-    --muted: #9aaaa4;
-    --border: #26332f;
-    --accent: #2dd4bf;
-    --accent-soft: #12312c;
+    --paper:        #0a120f;
+    --surface:      #131d19;
+    --surface-2:    #1a2621;
+
+    --ink:          #e9f1ed;
+    --ink-soft:     #a3b4ad;
+    --ink-faint:    #7d8f87;
+
+    --line:         #26332e;
+    --line-strong:  #35453e;
+
+    --brand:        #3ec49d;
+    --brand-hover:  #57d6b1;
+    --brand-ink:    #04140f;
+    --brand-soft:   #10302a;
+    --brand-edge:   #2a5a4c;
+
+    --hero-bg:      #0d2c24;
+    --hero-ink:     #e9f1ed;
+    --hero-cta:     #3ec49d;
+    --hero-cta-ink: #04140f;
+    --hero-line:    rgba(233, 241, 237, .16);
+    --hero-chip:    rgba(233, 241, 237, .08);
+
+    --danger:       #ff9d95;
+    --danger-soft:  #3a1613;
+    --danger-edge:  #6b2a25;
+    --warn:         #e8b872;
+    --warn-soft:    #33260f;
+    --warn-edge:    #5c4620;
+    --info:         #8fc2e8;
+    --info-soft:    #12293a;
+
+    --shadow:       0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
   }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-line: var(--border);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
+  --color-paper:       var(--paper);
+  --color-surface:     var(--surface);
+  --color-surface-2:   var(--surface-2);
+  --color-ink:         var(--ink);
+  --color-ink-soft:    var(--ink-soft);
+  --color-ink-faint:   var(--ink-faint);
+  --color-line:        var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand:       var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-ink:   var(--brand-ink);
+  --color-brand-soft:  var(--brand-soft);
+  --color-brand-edge:  var(--brand-edge);
+  --color-hero:        var(--hero-bg);
+  --color-hero-ink:    var(--hero-ink);
+  --color-hero-cta:    var(--hero-cta);
+  --color-hero-cta-ink: var(--hero-cta-ink);
+  --color-hero-line:   var(--hero-line);
+  --color-hero-chip:   var(--hero-chip);
+  --color-danger:      var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-edge: var(--danger-edge);
+  --color-warn:        var(--warn);
+  --color-warn-soft:   var(--warn-soft);
+  --color-warn-edge:   var(--warn-edge);
+  --color-info:        var(--info);
+  --color-info-soft:   var(--info-soft);
+
+  --font-sans: var(--font-app);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-app), system-ui, sans-serif;
+  /* Slightly larger than default: the audience includes older readers. */
+  font-size: 16.5px;
+  line-height: 1.6;
 }
+
+/* Indic scripts need more vertical room than Latin at the same size. */
+:lang(hi), :lang(kn), :lang(te) {
+  line-height: 1.85;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Answer text ────────────────────────────────────────────────────────── */
 
 /* AI answers arrive as plain text with blank lines between paragraphs. */
 .answer {
   white-space: pre-wrap;
-  line-height: 1.65;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
+
+/* ─── Motion ─────────────────────────────────────────────────────────────── */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: .25; transform: translateY(0); }
+  40%           { opacity: 1;   transform: translateY(-3px); }
+}
+
+.rise { animation: rise .28s ease-out both; }
+
+.dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: blink 1.3s infinite;
+}
+.dot:nth-child(2) { animation-delay: .18s; }
+.dot:nth-child(3) { animation-delay: .36s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+
+.scroll-soft { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+.scroll-soft::-webkit-scrollbar { width: 8px; }
+.scroll-soft::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 99px;
+}
+.scroll-soft::-webkit-scrollbar-track { background: transparent; }

@@ -3,23 +3,51 @@
 Multilingual AI health information for India — chatbot, photo analysis, symptom
 checker, and public health alerts. English, Hindi, Kannada, Telugu.
 
-One Next.js app. No accounts, no sign-up, no mobile app, no third-party services
-beyond OpenAI and a Postgres database.
+One Next.js app. No accounts, no sign-up, no mobile app.
 
 ## Running it
 
 ```bash
 npm install
-cp .env.example .env.local     # fill in OPENAI_API_KEY at minimum
+cp .env.example .env.local
+npm run check:ai        # confirms your key works before you start
 npm run dev
 ```
 
 Open http://localhost:3000.
 
-The chatbot, image analysis, and symptom checker work with just
-`OPENAI_API_KEY`. Alerts and the admin panel additionally need a database.
+## Getting an API key (free)
 
-### Database (optional but needed for alerts + admin)
+The app speaks the OpenAI chat-completions format, so it runs on any compatible
+provider. **Google Gemini has a genuinely free tier and needs no credit card:**
+
+1. Open <https://aistudio.google.com/apikey>
+2. Sign in with any Google account
+3. Click **Create API key**
+4. Paste it into `.env.local` after `AI_API_KEY=`
+5. Run `npm run check:ai` to confirm it works
+
+`.env.local` already points at Gemini. Roughly 1,500 requests a day, and it
+handles images as well as text, so photo analysis works too.
+
+> On Gemini's free tier Google may use submitted inputs to improve their models.
+> Fine for a demo; for anything carrying real health data, use a paid tier or a
+> provider that does not train on your data.
+
+### Switching provider
+
+Three variables, no code changes. `.env.example` has ready-made blocks for
+OpenAI, Groq, and OpenRouter alongside Gemini.
+
+| Variable | Meaning |
+|---|---|
+| `AI_API_KEY` | your key |
+| `AI_BASE_URL` | the endpoint — leave blank for OpenAI itself |
+| `AI_MODEL` | the model id |
+
+Note that Groq's free models are text-only, so image analysis will not work there.
+
+### Database (optional — needed for alerts + admin)
 
 1. Create a free Postgres database at [neon.tech](https://neon.tech).
 2. Put its connection string in `DATABASE_URL`.
@@ -29,13 +57,13 @@ The chatbot, image analysis, and symptom checker work with just
    ```
 
 Without `DATABASE_URL` the app degrades gracefully: reads return empty and
-writes are skipped, rather than crashing.
+writes are skipped, rather than crashing. The chatbot is unaffected.
 
 ## Deploying
 
-Push to GitHub, import the repo on Vercel, and set `OPENAI_API_KEY`,
-`DATABASE_URL`, and `ADMIN_PASSWORD` in the project's environment variables.
-Nothing else to configure.
+Push to GitHub, import the repo on Vercel, and set `AI_API_KEY`, `AI_BASE_URL`,
+`AI_MODEL`, `DATABASE_URL`, and `ADMIN_PASSWORD` in the project's environment
+variables. Nothing else to configure.
 
 ## What's where
 

@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  // Stop `next dev` from regenerating AGENTS.md / CLAUDE.md on every start.
+  agentRules: false,
+}
 
-export default nextConfig;
+export default nextConfig

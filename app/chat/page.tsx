@@ -8,9 +8,9 @@ export default function ChatPage() {
   const { lang } = useLang()
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-1 text-2xl font-semibold">{t(lang, 'chatTitle')}</h1>
-      <p className="mb-5 text-sm text-muted">{t(lang, 'intro')}</p>
+    <div className="mx-auto max-w-3xl px-5 py-8">
+      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t(lang, 'chatTitle')}</h1>
+      <p className="mb-6 mt-1.5 text-ink-soft">{t(lang, 'intro')}</p>
       <ChatPanel />
     </div>
   )

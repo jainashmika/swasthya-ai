@@ -25,25 +25,72 @@ export function isLang(v: unknown): v is Lang {
   return typeof v === 'string' && ['en', 'hi', 'kn', 'te'].includes(v)
 }
 
-const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+/**
+ * Provider configuration.
+ *
+ * The app talks to any OpenAI-compatible chat-completions endpoint, so it runs
+ * on OpenAI, Google Gemini, Groq or OpenRouter with no code change — only
+ * these three environment variables differ. See .env.example for presets.
+ *
+ *   AI_API_KEY   the key
+ *   AI_BASE_URL  the endpoint (omit for OpenAI itself)
+ *   AI_MODEL     the model id
+ */
+const API_KEY =
+  process.env.AI_API_KEY ||
+  process.env.OPENAI_API_KEY ||
+  process.env.GEMINI_API_KEY ||
+  ''
+
+const BASE_URL = process.env.AI_BASE_URL || undefined
+
+const MODEL = process.env.AI_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini'
+
+/** Which provider the current config points at — used only for error messages. */
+export function providerName() {
+  if (!BASE_URL) return 'OpenAI'
+  if (BASE_URL.includes('generativelanguage.googleapis.com')) return 'Google Gemini'
+  if (BASE_URL.includes('groq.com')) return 'Groq'
+  if (BASE_URL.includes('openrouter.ai')) return 'OpenRouter'
+  return 'the configured AI provider'
+}
 
 let client: OpenAI | null = null
 function openai() {
   if (!client) {
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) throw new Error('OPENAI_API_KEY is not set')
-    client = new OpenAI({ apiKey })
+    if (!API_KEY) throw new Error('AI_API_KEY is not set')
+    client = new OpenAI({ apiKey: API_KEY, baseURL: BASE_URL })
   }
   return client
 }
 
-/** Turns a thrown OpenAI/config error into something worth showing a user. */
+/** Turns a thrown provider/config error into something worth showing a user. */
 export function aiError(err: unknown) {
   const message = (err as Error)?.message ?? ''
-  if (message.includes('OPENAI_API_KEY')) {
+
+  if (message.includes('AI_API_KEY')) {
     return {
       status: 503,
-      error: 'No OpenAI API key is configured on the server. Set OPENAI_API_KEY.',
+      error:
+        'No AI API key is configured on the server. Set AI_API_KEY in .env.local — see .env.example for a free option.',
+    }
+  }
+  if (message.includes('401') || message.toLowerCase().includes('api key')) {
+    return {
+      status: 503,
+      error: `${providerName()} rejected the API key. Check AI_API_KEY is correct and still active.`,
+    }
+  }
+  if (message.includes('429') || message.toLowerCase().includes('quota')) {
+    return {
+      status: 429,
+      error: `${providerName()} is rate limiting this key. Wait a moment and try again.`,
+    }
+  }
+  if (message.includes('404') || message.includes('model')) {
+    return {
+      status: 503,
+      error: `${providerName()} does not recognise the model "${MODEL}". Check AI_MODEL.`,
     }
   }
   return { status: 503, error: 'The AI service is unavailable. Please try again.' }
