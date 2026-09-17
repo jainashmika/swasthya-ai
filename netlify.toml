@@ -1,0 +1,37 @@
+# Netlify deployment for SwasthyaAI.
+#
+# Netlify builds Next.js with zero configuration via its OpenNext adapter, so
+# most of this file is being explicit rather than strictly required. The parts
+# that matter are the pinned Node version and the pinned adapter.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next.js 16 needs Node 20.9+. Pinned so a change to Netlify's default
+  # cannot alter a build that already works.
+  NODE_VERSION = "22"
+
+# The adapter version is pinned in package.json devDependencies rather than
+# here — Netlify rejects a version spec in this block. Pinning trades automatic
+# adapter updates for builds that stay reproducible, which is the better deal
+# for something that has to work during a demo.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # camera stays self-allowed: the photo upload opens the camera as a source
+    # on Android. microphone and geolocation are unused.
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=()"
+
+# Static assets are content-hashed by Next, so they can be cached hard.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

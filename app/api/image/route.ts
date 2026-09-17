@@ -1,10 +1,17 @@
-import { aiError, analyzeImage, checkEmergency, EMERGENCY_RESPONSE, isLang } from '@/lib/ai'
+import {
+  aiError,
+  checkEmergency,
+  EMERGENCY_RESPONSE,
+  isLang,
+  streamImageAnalysis,
+} from '@/lib/ai'
 import { logQuery } from '@/lib/db'
 
 export const maxDuration = 30
 
-// Vercel caps request bodies at 4.5 MB. The browser downscales before upload,
-// but reject anything oversized here too rather than failing opaquely.
+// Vercel caps request bodies at 4.5 MB and Netlify at 6 MB. The browser
+// downscales before upload, but reject anything oversized here too rather than
+// failing opaquely at the platform layer.
 const MAX_IMAGE_BYTES = 3_000_000
 
 export async function POST(request: Request) {
@@ -31,13 +38,20 @@ export async function POST(request: Request) {
 
   if (description && checkEmergency(description)) {
     await logQuery('image', description, language, ['emergency'])
-    return Response.json({ content: EMERGENCY_RESPONSE[language], emergency: true })
+    return new Response(EMERGENCY_RESPONSE[language], {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Emergency': '1' },
+    })
   }
 
   try {
-    const content = await analyzeImage(image, description, language)
+    const stream = await streamImageAnalysis(image, description, language)
     await logQuery('image', description || '(photo, no description)', language)
-    return Response.json({ content, emergency: false })
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    })
   } catch (err) {
     console.error('[api/image]', (err as Error).message)
     const { status, error } = aiError(err)

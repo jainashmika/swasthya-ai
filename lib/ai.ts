@@ -210,24 +210,22 @@ function maxTokens(lang: Lang) {
 
 export type ChatMessage = { role: 'user' | 'assistant'; content: string }
 
-/** Returns a plain-text stream of the reply. */
-export async function streamChat(history: ChatMessage[], lang: Lang) {
-  const stream = await openai().chat.completions.create({
-    model: MODEL,
-    stream: true,
-    temperature: 0.4,
-    max_tokens: maxTokens(lang),
-    messages: [
-      { role: 'system', content: systemPrompt(lang) },
-      ...history.slice(-8),
-    ],
-  })
-
+/**
+ * Wraps an OpenAI streaming completion as a plain-text ReadableStream.
+ *
+ * Shared by chat and image analysis. Streaming is not only nicer to watch —
+ * it keeps time-to-first-byte low, which is what serverless hosts measure a
+ * function against. A vision call that buffers for twenty seconds trips
+ * Netlify's synchronous function timeout; the same call streamed does not.
+ */
+function toTextStream(
+  completion: AsyncIterable<{ choices: { delta?: { content?: string | null } }[] }>,
+) {
   const encoder = new TextEncoder()
   return new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const chunk of stream) {
+        for await (const chunk of completion) {
           const token = chunk.choices[0]?.delta?.content
           if (token) controller.enqueue(encoder.encode(token))
         }
@@ -241,11 +239,27 @@ export async function streamChat(history: ChatMessage[], lang: Lang) {
   })
 }
 
+/** Returns a plain-text stream of the reply. */
+export async function streamChat(history: ChatMessage[], lang: Lang) {
+  const completion = await openai().chat.completions.create({
+    model: MODEL,
+    stream: true,
+    temperature: 0.4,
+    max_tokens: maxTokens(lang),
+    messages: [
+      { role: 'system', content: systemPrompt(lang) },
+      ...history.slice(-8),
+    ],
+  })
+  return toTextStream(completion)
+}
+
 // ─── Image analysis ─────────────────────────────────────────────────────────
 
-export async function analyzeImage(dataUrl: string, description: string, lang: Lang) {
-  const res = await openai().chat.completions.create({
+export async function streamImageAnalysis(dataUrl: string, description: string, lang: Lang) {
+  const completion = await openai().chat.completions.create({
     model: MODEL,
+    stream: true,
     temperature: 0.4,
     max_tokens: maxTokens(lang),
     messages: [
@@ -273,7 +287,7 @@ Do not state which condition this person has. If the photo is too blurry, too da
       },
     ],
   })
-  return res.choices[0]?.message?.content ?? ''
+  return toTextStream(completion)
 }
 
 // ─── Symptom checker ────────────────────────────────────────────────────────

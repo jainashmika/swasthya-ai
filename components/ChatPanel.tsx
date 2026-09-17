@@ -88,55 +88,46 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
     if (fileRef.current) fileRef.current.value = ''
 
     try {
-      if (sentPhoto) {
-        const res = await fetch('/api/image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: sentPhoto, description: text, language: lang }),
-        })
-        const data = await res.json()
+      // Both endpoints now answer the same way: streamed text/plain, with an
+      // X-Emergency header when the safety layer short-circuited. One path.
+      const res = sentPhoto
+        ? await fetch('/api/image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: sentPhoto, description: text, language: lang }),
+          })
+        : await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: history.map(({ role, content }) => ({ role, content })),
+              language: lang,
+            }),
+          })
+
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({}))
         setMessages((m) => [
           ...m,
-          {
-            role: 'assistant',
-            content: data.content ?? data.error ?? t(lang, 'error'),
-            emergency: Boolean(data.emergency),
-          },
+          { role: 'assistant', content: data.error ?? t(lang, 'error') },
         ])
       } else {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: history.map(({ role, content }) => ({ role, content })),
-            language: lang,
-          }),
-        })
+        const emergency = res.headers.get('X-Emergency') === '1'
+        setMessages((m) => [...m, { role: 'assistant', content: '', emergency }])
 
-        if (!res.ok || !res.body) {
-          const data = await res.json().catch(() => ({}))
-          setMessages((m) => [
-            ...m,
-            { role: 'assistant', content: data.error ?? t(lang, 'error') },
-          ])
-        } else {
-          const emergency = res.headers.get('X-Emergency') === '1'
-          setMessages((m) => [...m, { role: 'assistant', content: '', emergency }])
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        let acc = ''
 
-          const reader = res.body.getReader()
-          const decoder = new TextDecoder()
-          let acc = ''
-
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-            acc += decoder.decode(value, { stream: true })
-            setMessages((m) => {
-              const copy = [...m]
-              copy[copy.length - 1] = { ...copy[copy.length - 1], content: acc }
-              return copy
-            })
-          }
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          acc += decoder.decode(value, { stream: true })
+          setMessages((m) => {
+            const copy = [...m]
+            copy[copy.length - 1] = { ...copy[copy.length - 1], content: acc }
+            return copy
+          })
         }
       }
     } catch {

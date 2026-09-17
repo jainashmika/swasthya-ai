@@ -61,9 +61,39 @@ writes are skipped, rather than crashing. The chatbot is unaffected.
 
 ## Deploying
 
-Push to GitHub, import the repo on Vercel, and set `AI_API_KEY`, `AI_BASE_URL`,
-`AI_MODEL`, `DATABASE_URL`, and `ADMIN_PASSWORD` in the project's environment
-variables. Nothing else to configure.
+Set these environment variables on whichever host you use. They are the same
+everywhere, and none of them may be prefixed `NEXT_PUBLIC_`:
+
+| Variable | Required | Notes |
+|---|---|---|
+| `AI_API_KEY` | yes | without it, chat / image / symptoms return a clear 503 |
+| `AI_BASE_URL` | for anything but OpenAI | e.g. the Gemini endpoint |
+| `AI_MODEL` | yes | e.g. `gemini-2.5-flash` |
+| `DATABASE_URL` | no | alerts and admin stay empty without it |
+| `ADMIN_PASSWORD` | yes | gate for `/admin` |
+
+### Netlify
+
+1. Push to GitHub.
+2. In Netlify, **Add new site → Import an existing project**, pick the repo.
+3. Netlify detects Next.js. Build command `npm run build`, publish `.next` —
+   both are already set in `netlify.toml`, so leave the defaults.
+4. **Site configuration → Environment variables** → add the table above.
+5. Deploy.
+
+`netlify.toml` pins Node 22 and the `@netlify/plugin-nextjs` adapter version, so
+a change to Netlify's defaults cannot break a build that already works. To take
+adapter updates instead, remove `@netlify/plugin-nextjs` from
+`devDependencies` and Netlify will manage it for you.
+
+Both AI routes stream their responses. That matters more on Netlify than it
+looks: a function that buffers a slow vision call for twenty seconds before
+replying can hit the synchronous function timeout, while the same call streamed
+starts sending within a second and does not.
+
+### Vercel
+
+Import the repo and set the same environment variables. No config file needed.
 
 ## What's where
 
