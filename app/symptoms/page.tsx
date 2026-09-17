@@ -64,7 +64,7 @@ export default function SymptomsPage() {
         </h1>
 
         {result.emergency ? (
-          <div role="alert" className="rise rounded-2xl border-2 border-danger-edge bg-danger-soft p-5">
+          <div role="alert" className="lift-in rounded-2xl border-2 border-danger-edge bg-danger-soft p-5">
             <p className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-danger">
               <PhoneIcon className="h-4 w-4" />
               {t(lang, 'emergency')}
@@ -80,7 +80,7 @@ export default function SymptomsPage() {
             </a>
           </div>
         ) : (
-          <div className="rise rounded-2xl border border-line bg-surface p-5 shadow-(--shadow)">
+          <div className="glass glass-lit lift-in rounded-2xl p-5 shadow-(--shadow)">
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-brand">
               <SymptomsIcon className="h-4 w-4" />
               {t(lang, 'resultTitle')}

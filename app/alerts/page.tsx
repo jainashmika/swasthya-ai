@@ -76,7 +76,7 @@ export default function AlertsPage() {
           ))}
         </ul>
       ) : alerts.length === 0 ? (
-        <div className="rounded-2xl border border-line bg-surface p-10 text-center">
+        <div className="glass glass-lit lift-in rounded-2xl p-10 text-center">
           <span className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-surface-2 text-ink-faint">
             <AlertIcon className="h-6 w-6" />
           </span>
@@ -84,12 +84,13 @@ export default function AlertsPage() {
         </div>
       ) : (
         <ul className="space-y-3.5">
-          {alerts.map((a) => {
+          {alerts.map((a, i) => {
             const style = SEVERITY[a.severity] ?? SEVERITY.medium
             return (
               <li
                 key={a.id}
-                className="rise flex overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow)"
+                className="glass glass-lit hover-lift lift-in flex overflow-hidden rounded-2xl shadow-(--shadow)"
+                style={{ animationDelay: `${i * 60}ms` }}
               >
                 <span aria-hidden className={`w-1.5 shrink-0 ${style.stripe}`} />
                 <div className="min-w-0 flex-1 p-4.5">

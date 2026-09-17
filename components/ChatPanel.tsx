@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { DISCLAIMER } from '@/lib/ai'
 import { SUGGESTIONS, t } from '@/lib/i18n'
 import { resizeImage } from '@/lib/resize-image'
+import { Heartbeat } from './Heartbeat'
 import { CameraIcon, CloseIcon, PhoneIcon, SendIcon, SparkIcon } from './Icons'
 import { useLang } from './LangProvider'
 
@@ -158,7 +159,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
   const waiting = busy && messages.at(-1)?.role === 'user'
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-(--shadow)">
+    <div className="glass glass-lit flex flex-col overflow-hidden rounded-2xl shadow-(--shadow)">
       {/* ── Conversation ─────────────────────────────────────────────── */}
       <div
         className={`scroll-soft flex-1 space-y-5 overflow-y-auto p-5 ${
@@ -166,7 +167,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
         }`}
       >
         {empty && (
-          <div className="rise">
+          <div className="lift-in">
             <div className="flex items-start gap-3">
               <span
                 aria-hidden
@@ -204,7 +205,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
 
           if (m.role === 'user') {
             return (
-              <div key={i} className="rise flex flex-col items-end gap-2">
+              <div key={i} className="lift-in flex flex-col items-end gap-2">
                 {m.image && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -227,7 +228,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
               <div
                 key={i}
                 role="alert"
-                className="rise rounded-2xl border-2 border-danger-edge bg-danger-soft p-4"
+                className="lift-in rounded-2xl border-2 border-danger-edge bg-danger-soft p-4"
               >
                 <p className="mb-1.5 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-danger">
                   <PhoneIcon className="h-4 w-4" />
@@ -246,7 +247,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
           }
 
           return (
-            <div key={i} className="rise flex items-start gap-3">
+            <div key={i} className="lift-in flex items-start gap-3">
               <span
                 aria-hidden
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-soft text-brand"
@@ -258,14 +259,12 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
                   <p className="answer text-[0.95rem]">{m.content}</p>
                 ) : (
                   streaming && (
-                    <span
-                      className="flex gap-1.5 py-2 text-ink-faint"
-                      aria-label={t(lang, 'thinking')}
-                    >
-                      <i className="dot" />
-                      <i className="dot" />
-                      <i className="dot" />
-                    </span>
+                    <Heartbeat
+                      className="h-7 w-28 text-brand"
+                      speed={2.2}
+                      weight={2.4}
+                      label={t(lang, 'thinking')}
+                    />
                   )
                 )}
                 {m.content && !streaming && (
@@ -286,11 +285,12 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
             >
               <SparkIcon className="h-5 w-5" />
             </span>
-            <span className="flex gap-1.5 py-3 text-ink-faint" aria-label={t(lang, 'thinking')}>
-              <i className="dot" />
-              <i className="dot" />
-              <i className="dot" />
-            </span>
+            <Heartbeat
+              className="h-7 w-28 text-brand"
+              speed={2.2}
+              weight={2.4}
+              label={t(lang, 'thinking')}
+            />
           </div>
         )}
 

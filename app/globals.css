@@ -54,6 +54,17 @@
      falls through the stack per-glyph, so every script gets a real face. */
   --font-app: var(--f-latin), var(--f-deva), var(--f-knda), var(--f-telu);
 
+  /* Glass. Kept fairly opaque: this has to stay readable in sunlight on a
+     cheap screen, which is the opposite of what heavy transparency wants. */
+  --glass-bg:     rgba(255, 255, 255, .66);
+  --glass-edge:   rgba(255, 255, 255, .85);
+  --glass-shine:  rgba(255, 255, 255, .55);
+  --glass-blur:   16px;
+
+  --orb-a:        rgba(23, 168, 132, .45);
+  --orb-b:        rgba(13, 110, 155, .35);
+  --orb-c:        rgba(150, 89, 10, .22);
+
   --radius:       14px;
   --shadow:       0 1px 2px rgba(12, 26, 21, .05), 0 4px 16px rgba(12, 26, 21, .05);
 }
@@ -92,6 +103,15 @@
     --warn-edge:    #5c4620;
     --info:         #8fc2e8;
     --info-soft:    #12293a;
+
+    --glass-bg:     rgba(21, 31, 29, .58);
+    --glass-edge:   rgba(233, 241, 237, .12);
+    --glass-shine:  rgba(233, 241, 237, .07);
+    --glass-blur:   18px;
+
+    --orb-a:        rgba(62, 196, 157, .30);
+    --orb-b:        rgba(88, 168, 224, .22);
+    --orb-c:        rgba(232, 184, 114, .16);
 
     --shadow:       0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
   }
@@ -211,3 +231,132 @@ body {
   border-radius: 99px;
 }
 .scroll-soft::-webkit-scrollbar-track { background: transparent; }
+
+
+/* ─── Glass ──────────────────────────────────────────────────────────────── */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(165%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(165%);
+  border: 1px solid var(--glass-edge);
+}
+
+/* The hero is a dark colour block in BOTH themes, so glass sitting on it needs
+   a light tint. The default white frost plus white text is unreadable there. */
+.glass-on-dark {
+  background: rgba(255, 255, 255, .14);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, .3);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-on-dark { background: rgba(255, 255, 255, .2); }
+}
+
+/* A one-pixel highlight along the top edge, the way real glass catches light. */
+.glass-lit {
+  position: relative;
+  isolation: isolate;
+}
+.glass-lit::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-shine), transparent);
+  pointer-events: none;
+}
+
+/* Backdrop blur is a real cost on low-end phones. Where the device says it
+   cannot cope, fall back to a solid surface rather than a muddy one. */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass { background: var(--surface); }
+}
+
+/* ─── Ambient orbs ───────────────────────────────────────────────────────── */
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(34px, -26px, 0) scale(1.09); }
+  66%      { transform: translate3d(-22px, 18px, 0) scale(.95); }
+}
+
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-40px, 24px, 0) scale(1.12); }
+}
+
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  40%      { transform: translate3d(26px, 20px, 0) scale(.92); }
+  75%      { transform: translate3d(-16px, -22px, 0) scale(1.06); }
+}
+
+.orb-a { animation: drift-a 19s ease-in-out infinite; }
+.orb-b { animation: drift-b 24s ease-in-out infinite; }
+.orb-c { animation: drift-c 16s ease-in-out infinite; }
+
+/* ─── ECG trace ──────────────────────────────────────────────────────────── */
+
+@keyframes ecg-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-400px); }
+}
+
+.ecg-track {
+  animation: ecg-scroll var(--ecg-speed, 7s) linear infinite;
+  will-change: transform;
+}
+
+.ecg-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--ecg-weight, 2);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Fade the trace at both ends so it reads as a continuous monitor sweep
+   rather than a graphic that stops. */
+.ecg-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* ─── Entrance + hover motion ────────────────────────────────────────────── */
+
+@keyframes lift-in {
+  from { opacity: 0; transform: translateY(14px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+.lift-in { animation: lift-in .5s cubic-bezier(.22, 1, .36, 1) both; }
+
+.hover-lift {
+  transition: transform .28s cubic-bezier(.22, 1, .36, 1), box-shadow .28s ease,
+    border-color .2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 34px rgba(12, 26, 21, .13);
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand) 45%, transparent); }
+  70%  { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.pulse-ring { animation: pulse-ring 2.4s ease-out infinite; }
+
+/* Everything above is decoration. If the viewer asked for less motion, the
+   global reduce block further down stops all of it. */

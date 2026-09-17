@@ -14,7 +14,7 @@ export function SiteFooter() {
   if (path.startsWith('/admin')) return null
 
   return (
-    <footer className="mt-16 border-t border-line bg-surface">
+    <footer className="glass glass-lit mt-16 border-x-0 border-b-0 border-t border-line">
       <div className="mx-auto max-w-5xl px-5 py-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <p className="max-w-md text-sm leading-relaxed text-ink-soft">
