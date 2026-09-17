@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "check:ai": "node scripts/check-ai.mjs"
+    "check:ai": "node scripts/check-ai.mjs",
+    "try:ask": "node scripts/try-ask.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
