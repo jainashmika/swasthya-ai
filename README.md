@@ -16,23 +16,43 @@ npm run dev
 
 Open http://localhost:3000.
 
-## Getting an API key (free)
+## The AI provider
 
-The app speaks the OpenAI chat-completions format, so it runs on any compatible
-provider. **Google Gemini has a genuinely free tier and needs no credit card:**
+`npm run check:ai` tells you exactly what works with your current config —
+text, vision, or neither — before you start the app.
+
+### It already works with no key
+
+`.env.local` ships pointed at a free public gateway. Chat and the symptom
+checker answer immediately, with no signup. **Photo analysis does not work
+there** — that model has no vision.
+
+It has no uptime guarantee and no stated policy on what happens to the health
+questions sent through it. Treat it as a way to see the app running, not
+somewhere to send anything real.
+
+### For photo analysis, and for anything you demo: Gemini
+
+Free, no credit card, about ninety seconds:
 
 1. Open <https://aistudio.google.com/apikey>
 2. Sign in with any Google account
 3. Click **Create API key**
-4. Paste it into `.env.local` after `AI_API_KEY=`
-5. Run `npm run check:ai` to confirm it works
+4. In `.env.local`, paste it and swap to the Gemini block:
+   ```
+   AI_API_KEY=your-key
+   AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+   AI_MODEL=gemini-2.5-flash
+   ```
+5. `npm run check:ai` — should report text **and** vision working
 
-`.env.local` already points at Gemini. Roughly 1,500 requests a day, and it
-handles images as well as text, so photo analysis works too.
+Roughly 1,500 requests a day. It also follows the safety rules in the prompt
+noticeably better than the free keyless model, which matters here: the weaker
+model had to be argued out of naming medicines.
 
-> On Gemini's free tier Google may use submitted inputs to improve their models.
-> Fine for a demo; for anything carrying real health data, use a paid tier or a
-> provider that does not train on your data.
+> On Gemini's free tier Google may use submitted inputs to improve their
+> models. Fine for a demo; for real health data, use a paid tier or a provider
+> that does not train on your data.
 
 ### Switching provider
 
